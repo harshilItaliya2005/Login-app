@@ -177,7 +177,11 @@ class SignInActivity : ComponentActivity() {
                             contentColor = Color.Transparent,
                             containerColor = Color.Transparent
                         ),
-                        onClick = {}
+                        onClick = {
+                            val intent = Intent(applicationContext, HomePage::class.java)
+                            startActivity(intent)
+                            finish()
+                        }
                     ) {
                         Text(
                             text = "LOGIN",

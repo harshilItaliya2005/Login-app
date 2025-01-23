@@ -36,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.room.Room
 import com.example.loginapp.ui.theme.LoginAppTheme
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 @Suppress("DEPRECATION")
 class MainActivity : ComponentActivity() {
@@ -107,8 +109,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    OutlinedTextField(
-                        value = name,
+                    OutlinedTextField(value = name,
                         onValueChange = { name = it },
                         label = { Text("Name", color = Color.Gray) },
                         leadingIcon = {
@@ -132,8 +133,7 @@ class MainActivity : ComponentActivity() {
                         )
                     )
 
-                    OutlinedTextField(
-                        value = number,
+                    OutlinedTextField(value = number,
                         onValueChange = { number = it },
                         label = { Text("Mobile Number", color = Color.Gray) },
                         leadingIcon = {
@@ -158,8 +158,7 @@ class MainActivity : ComponentActivity() {
                         )
                     )
 
-                    OutlinedTextField(
-                        value = email,
+                    OutlinedTextField(value = email,
                         onValueChange = { email = it },
                         label = { Text("Email Address", color = Color.Gray) },
                         leadingIcon = {
@@ -184,8 +183,7 @@ class MainActivity : ComponentActivity() {
                         )
                     )
 
-                    OutlinedTextField(
-                        value = password,
+                    OutlinedTextField(value = password,
                         onValueChange = { password = it },
                         label = { Text("Password", color = Color.Gray) },
                         leadingIcon = {
@@ -211,8 +209,7 @@ class MainActivity : ComponentActivity() {
                         )
                     )
 
-                    OutlinedTextField(
-                        value = confirmPassword,
+                    OutlinedTextField(value = confirmPassword,
                         onValueChange = { confirmPassword = it },
                         label = { Text("Confirm Password", color = Color.Gray) },
                         leadingIcon = {
@@ -238,19 +235,16 @@ class MainActivity : ComponentActivity() {
                         )
                     )
 
-                    ElevatedButton(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
+                    ElevatedButton(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
                         border = BorderStroke(3.dp, Color(0xFF00B8D4)),
                         colors = ButtonDefaults.buttonColors(
-                            contentColor = Color.Transparent,
-                            containerColor = Color.Transparent
+                            contentColor = Color.Transparent, containerColor = Color.Transparent
                         ),
                         onClick = {
                             when {
-                                name.isEmpty() || email.isEmpty() || number.isEmpty() ||
-                                        password.isEmpty() || confirmPassword.isEmpty() -> {
+                                name.isEmpty() || email.isEmpty() || number.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() -> {
                                     Toast.makeText(
                                         applicationContext,
                                         "All fields are required!",
@@ -283,21 +277,32 @@ class MainActivity : ComponentActivity() {
                                 }
 
                                 else -> {
-                                    val db = Room.databaseBuilder(applicationContext,
-                                        AppDatabase::class.java, "database-name").build()
+                                    GlobalScope.launch {
+                                        val db = Room.databaseBuilder(
+                                            applicationContext,
+                                            AppDatabase::class.java,
+                                            "database-name"
+                                        ).build()
 
-                                    val user = User(1,"harshil","italiya")
-                                    db.userDao().insertAll()
+                                        db.userDao()
+                                            .insertAll(User(firstName = name, email = email, mobileNumber = number, password = password))
 
+//                                        Log.d("=============", "Design: ${db.userDao().selectAll()}")
+//                                        Log.d("=============", "Design: ${db.userDao().selectUser(name = name)}")
+//                                        Log.d("=============", "Design: ${db.userDao().updateUser(uid = 1,name ="cdmi",email = "test@gmail.com")}")
+//                                        Log.d("=============", "Design: ${db.userDao().deleteData(User(uid = 1, firstName ="cdmi",email = "test@gmail.com"))}")
+                                    }
+                                    val intent = Intent(applicationContext, HomePage::class.java)
+                                    startActivity(intent)
                                     Toast.makeText(
                                         applicationContext,
-                                        "You are registered successfully!",
+                                                                  "You are registered successfully!",
                                         Toast.LENGTH_SHORT
                                     ).show()
+                                    finish()
                                 }
                             }
-                        }
-                    ) {
+                        }) {
                         Text(
                             text = "REGISTER NOW",
                             fontSize = 20.sp,
