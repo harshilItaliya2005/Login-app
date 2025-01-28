@@ -1,27 +1,28 @@
 package com.example.loginapp
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 
 @Dao
 interface UserDao {
 
     @Insert
-    fun insertAll(users: User)
+    fun insert(user: User)
 
-    @Query("SELECT * FROM user")
-    fun selectAll() : List<User>
-
-    @Query("SELECT * FROM user WHERE first_name = :name")
-    fun selectUser(name : String): User
-
-    @Query("UPDATE user SET first_name = :name , email = :email WHERE uid = :uid")
-    fun updateUser(uid : Int,name : String,email : String)
+    @Update
+    fun update(user: User)
 
     @Delete
-    fun deleteData(users: User)
+    fun delete(user: User)
 
+    @Query("SELECT * FROM user WHERE email = :email AND password = :password LIMIT 1")
+    fun getUserByCredentials(email: String, password: String): User?
+
+    @Query("SELECT * FROM user WHERE uid = :id LIMIT 1")
+    fun getUserById(id: Int): User?
+
+    @Query("SELECT * FROM user")
+    fun selectAllUsers(): List<User>
+
+    @Query("UPDATE user SET password = :newPassword WHERE email = :email")
+    fun updatePassword(email: String, newPassword: String)
 }

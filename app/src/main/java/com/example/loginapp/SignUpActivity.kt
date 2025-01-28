@@ -1,6 +1,7 @@
 package com.example.loginapp
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -36,16 +37,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.room.Room
 import com.example.loginapp.ui.theme.LoginAppTheme
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
+@OptIn(DelicateCoroutinesApi::class)
 @Suppress("DEPRECATION")
-class MainActivity : ComponentActivity() {
+class SignUpActivity : ComponentActivity() {
+
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             LoginAppTheme {
                 Design()
@@ -53,7 +58,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, DelicateCoroutinesApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
     @Composable
     fun Design() {
@@ -109,7 +114,8 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    OutlinedTextField(value = name,
+                    OutlinedTextField(
+                        value = name,
                         onValueChange = { name = it },
                         label = { Text("Name", color = Color.Gray) },
                         leadingIcon = {
@@ -133,7 +139,8 @@ class MainActivity : ComponentActivity() {
                         )
                     )
 
-                    OutlinedTextField(value = number,
+                    OutlinedTextField(
+                        value = number,
                         onValueChange = { number = it },
                         label = { Text("Mobile Number", color = Color.Gray) },
                         leadingIcon = {
@@ -158,7 +165,8 @@ class MainActivity : ComponentActivity() {
                         )
                     )
 
-                    OutlinedTextField(value = email,
+                    OutlinedTextField(
+                        value = email,
                         onValueChange = { email = it },
                         label = { Text("Email Address", color = Color.Gray) },
                         leadingIcon = {
@@ -183,7 +191,8 @@ class MainActivity : ComponentActivity() {
                         )
                     )
 
-                    OutlinedTextField(value = password,
+                    OutlinedTextField(
+                        value = password,
                         onValueChange = { password = it },
                         label = { Text("Password", color = Color.Gray) },
                         leadingIcon = {
@@ -209,7 +218,8 @@ class MainActivity : ComponentActivity() {
                         )
                     )
 
-                    OutlinedTextField(value = confirmPassword,
+                    OutlinedTextField(
+                        value = confirmPassword,
                         onValueChange = { confirmPassword = it },
                         label = { Text("Confirm Password", color = Color.Gray) },
                         leadingIcon = {
@@ -282,10 +292,19 @@ class MainActivity : ComponentActivity() {
                                             applicationContext,
                                             AppDatabase::class.java,
                                             "database-name"
-                                        ).build()
+                                        )
+                                            .fallbackToDestructiveMigration()
+                                            .build()
 
                                         db.userDao()
-                                            .insertAll(User(firstName = name, email = email, mobileNumber = number, password = password))
+                                            .insert(
+                                                User(
+                                                    firstName = name,
+                                                    email = email,
+                                                    mobileNumber = number,
+                                                    password = password
+                                                )
+                                            )
 
 //                                        Log.d("=============", "Design: ${db.userDao().selectAll()}")
 //                                        Log.d("=============", "Design: ${db.userDao().selectUser(name = name)}")
@@ -296,7 +315,7 @@ class MainActivity : ComponentActivity() {
                                     startActivity(intent)
                                     Toast.makeText(
                                         applicationContext,
-                                                                  "You are registered successfully!",
+                                        "You are registered successfully!",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                     finish()
@@ -314,5 +333,4 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
 }

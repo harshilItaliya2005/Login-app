@@ -65,7 +65,7 @@ class HomePage : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "username",
+                        text = "",
                         color = Color.Black,
                         fontSize = 30.sp,
                     )

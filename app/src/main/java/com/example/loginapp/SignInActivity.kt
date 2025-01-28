@@ -1,7 +1,9 @@
 package com.example.loginapp
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -40,20 +42,42 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.room.Room
 import com.example.loginapp.ui.theme.LoginAppTheme
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 @Suppress("DEPRECATION")
 class SignInActivity : ComponentActivity() {
+
+    companion object {
+        lateinit var sp : SharedPreferences
+        lateinit var edit: SharedPreferences.Editor
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            LoginAppTheme {
-                Design()
+
+        sp = getSharedPreferences("login", MODE_PRIVATE)
+        edit = sp.edit()
+
+        val isLoggedIn = sp.getBoolean("user", false)
+        if (isLoggedIn) {
+            val intent = Intent(applicationContext, HomePage::class.java)
+            startActivity(intent)
+            finish()
+        } else {
+            setContent {
+                LoginAppTheme {
+                    Design()
+                }
             }
         }
     }
-    @OptIn(ExperimentalMaterial3Api::class)
+
+    @OptIn(ExperimentalMaterial3Api::class, DelicateCoroutinesApi::class)
     @Composable
     fun Design() {
         var email by remember { mutableStateOf("") }
@@ -82,9 +106,10 @@ class SignInActivity : ComponentActivity() {
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
+
                     Row {
                         TextButton(onClick = {
-                            val intent = Intent(applicationContext, MainActivity::class.java)
+                            val intent = Intent(applicationContext, SignUpActivity::class.java)
                             startActivity(intent)
                         }) {
                             Text(
@@ -101,6 +126,7 @@ class SignInActivity : ComponentActivity() {
                             )
                         }
                     }
+
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
@@ -178,9 +204,40 @@ class SignInActivity : ComponentActivity() {
                             containerColor = Color.Transparent
                         ),
                         onClick = {
-                            val intent = Intent(applicationContext, HomePage::class.java)
-                            startActivity(intent)
-                            finish()
+                            if (email.isNotEmpty() && password.isNotEmpty()) {
+                                GlobalScope.launch {
+                                    val db = Room.databaseBuilder(
+                                        applicationContext,
+                                        AppDatabase::class.java,
+                                        "database-name"
+                                    ).build()
+
+                                    val user = db.userDao().getUserByCredentials(email, password)
+
+                                    if (user != null) {
+                                        edit.putBoolean("user", true)
+                                        edit.apply()
+
+                                        val intent = Intent(applicationContext, HomePage::class.java)
+                                        startActivity(intent)
+                                        finish()
+                                    } else {
+                                        runOnUiThread {
+                                            Toast.makeText(
+                                                applicationContext,
+                                                "Invalid email or password.",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(
+                                    applicationContext,
+                                    "Please enter both email and password.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     ) {
                         Text(
