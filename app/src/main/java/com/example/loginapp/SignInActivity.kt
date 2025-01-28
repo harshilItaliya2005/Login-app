@@ -68,6 +68,7 @@ class SignInActivity : ComponentActivity() {
             val intent = Intent(applicationContext, HomePage::class.java)
             startActivity(intent)
             finish()
+            //
         } else {
             setContent {
                 LoginAppTheme {
